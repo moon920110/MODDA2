@@ -1,9 +1,10 @@
 using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
+using UnityEngine.UI;
 using UnityEngine.SceneManagement;
 
-public class MainMenuManager : MonoBehaviour
+public class MenuManager : MonoBehaviour
 {
     public void StartGame()
     {
@@ -14,5 +15,9 @@ public class MainMenuManager : MonoBehaviour
     {
         Application.Quit();
     }
-}
 
+    public void SetDifficulty(int difficulty)
+    {
+        GameManager.instance.SetDifficultyLevel(difficulty);
+    }
+}

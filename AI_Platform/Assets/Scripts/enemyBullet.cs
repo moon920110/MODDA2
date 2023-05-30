@@ -12,6 +12,7 @@ public class enemyBullet : MonoBehaviour
     public GameObject bullet;
     public GameObject playerObject;    
     public float damage;
+    //public AudioSource Laser;
     //public float enemyFirerate = 100;
     //float enemyFirerateTimer = 0;
     //public bool isenemyAutomatic;
@@ -20,9 +21,11 @@ public class enemyBullet : MonoBehaviour
     private void Start()
     {
         playerObject = GameObject.FindGameObjectWithTag("Player");
+        //Laser = GetComponent<AudioSource>();
     }
     void Update()
     {
+        //Laser.Play();
         transform.Translate(Vector3.forward * Time.deltaTime * movementSpeed);
 
         /*if (enemyFirerateTimer > 0)

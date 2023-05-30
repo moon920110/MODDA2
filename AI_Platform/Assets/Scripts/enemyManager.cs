@@ -17,8 +17,6 @@ public class enemyManager : MonoBehaviour
     public float fireTimer = 1f;//
     private bool shootReady;
     
-
-
     public GameObject playerObject;
     //public float damage = 50f;    
     public GameManager gameManager;
@@ -31,17 +29,18 @@ public class enemyManager : MonoBehaviour
     //Patrol
     public Vector3 walkPoint;
     bool walkPointSet;
-    public float walkPointRange = 3;
+    public float walkPointRange = 6;
     //Attack
     bool alreadyAttacked;
     //States
-    public float sightRange = 10, attackRange = 5;
+    public float sightRange = 25, attackRange = 15;
     public bool playerInSightRange, playerInAttackRange, gettingAttack;    
-    public float e_current_health = 100; // enemy's updated health
+    public float e_current_health; // enemy's updated health
     public int scorePoints = 20;  // When a turret is destroyed, the player gets 20 points   
 
     //UI
     public Slider slider;
+    public AudioSource Laser;
     #endregion
 
 
@@ -51,15 +50,19 @@ public class enemyManager : MonoBehaviour
         playerObject = GameObject.FindGameObjectWithTag("Player");
         agent = GetComponent<NavMeshAgent>();
         target = playerObject;
+        gameManager = GameManager.instance; 
     }
 
     public void Start()
     {
-        gameManager = GameObject.Find("GameManager").GetComponent<GameManager>();        
+        gameManager = GameObject.Find("GameManager").GetComponent<GameManager>();
+        e_current_health = gameManager.enemyCurrentHealth;
+        Debug.Log(e_current_health);
         slider.maxValue = e_current_health;
         slider.value = e_current_health;
         shootReady = true;
         gettingAttack = false;
+        Laser = GetComponent<AudioSource>();
     }
     void Update()
     {
@@ -77,7 +80,6 @@ public class enemyManager : MonoBehaviour
                 Patroling();
             }
         }
-
         if (
             playerInSightRange && !playerInAttackRange)
         {
@@ -116,11 +118,10 @@ public class enemyManager : MonoBehaviour
         StartCoroutine(FireRate());
         //shootReady = false;
     }
-
     IEnumerator FireRate()
     {
-        
-         GameObject.Instantiate(bullet.transform, bulletSpawner.transform.position, bulletSpawner.transform.rotation);// Quaternion.identity);
+        Laser.Play();
+        GameObject.Instantiate(bullet.transform, bulletSpawner.transform.position, bulletSpawner.transform.rotation);// Quaternion.identity);
         //Rigidbody _bulletRigidBody = _bullet.GetComponent<Rigidbody>();
         //_bullet.transform.rotation = bulletSpawner.transform.rotation;
         //_bulletRigidBody.AddForce(_bulletRigidBody.transform.forward * bulletMovementSpeed);
@@ -164,7 +165,7 @@ public class enemyManager : MonoBehaviour
     }
     public void Hit(float damage) //When the enemy Takes Damage
     {
-        Debug.Log("enemy took damage");
+        //Debug.Log("enemy took damage");
         gettingAttack = true;
         e_current_health -= damage;        
         slider.value = e_current_health;
@@ -179,7 +180,6 @@ public class enemyManager : MonoBehaviour
             //Debug.Log("Number of destroyed on enemy script: " + numberofDestroyed);
         }        
     }
-
     public void Patroling()
     {
         if (!walkPointSet) SearchWalkPoint();
@@ -188,8 +188,7 @@ public class enemyManager : MonoBehaviour
         Vector3 distanceToWalkPoint = transform.position - walkPoint;
         //walkpoint reached
         if (distanceToWalkPoint.magnitude < 1f)
-            walkPointSet = false;
-    }
+            walkPointSet = false;    }
 
     public void SearchWalkPoint()
     {
@@ -201,16 +200,13 @@ public class enemyManager : MonoBehaviour
             walkPointSet = true;//
         }
     }
-
-
     public void ChasePlayer()
     {
         if (playerInSightRange) //&& playerInAttackRange
         {
             agent.SetDestination(playerLocation.position);
         }
-    }
-   
+    }   
     public void ResetAttack()
     {
         alreadyAttacked = false;

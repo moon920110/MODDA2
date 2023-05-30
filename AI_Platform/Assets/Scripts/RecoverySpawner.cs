@@ -6,18 +6,23 @@ using UnityEngine.AI;
 public class RecoverySpawner : MonoBehaviour
 {
 
-    public int[] initialAidsByRoom = { 2, 3, 3, 2, 2, 2, 1, 4, 5 };
+    //public int[] initialAidsByRoom = { 2, 3, 3, 2, 2, 2, 1, 4, 5 };
     private int[] currentAidsByRoom;
     private GameObject[] tilesByRoom;
     private GameObject[] firstaids;
     private GameObject firstaidPrefab;
     private bool[] roomCleared;
     private float spawnDelay = 5f;
+    public GameManager gameManager;
 
+    public void Awake()
+    {
+        gameManager = GameManager.instance;
+    }
     private void Start()
     {
         firstaidPrefab = (GameObject)Resources.Load("FirstAid");
-        currentAidsByRoom = initialAidsByRoom;
+        currentAidsByRoom = gameManager.initialAidsByRoom;
         tilesByRoom = new GameObject[9];
         firstaids = new GameObject[currentAidsByRoom.Length];
         roomCleared = new bool[9];
@@ -32,13 +37,13 @@ public class RecoverySpawner : MonoBehaviour
 
     private void SpawnInitialAids()
     {
-        currentAidsByRoom = new int[initialAidsByRoom.Length];
+        currentAidsByRoom = new int[gameManager.initialAidsByRoom.Length];
 
-        for (int i = 0; i < initialAidsByRoom.Length; i++)
+        for (int i = 0; i < gameManager.initialAidsByRoom.Length; i++)
         {
             GameObject[] tiles = GameObject.FindGameObjectsWithTag("Room" + (i + 1));
 
-            int numAids = initialAidsByRoom[i];
+            int numAids = gameManager.initialAidsByRoom[i];
 
             for (int j = 0; j < numAids; j++)
             {
@@ -90,7 +95,7 @@ public class RecoverySpawner : MonoBehaviour
     private IEnumerator SpawnAidsAfterDelay(int roomIndex)
     {
         yield return new WaitForSeconds(spawnDelay);
-        currentAidsByRoom[roomIndex] = initialAidsByRoom[roomIndex];
+        currentAidsByRoom[roomIndex] = gameManager.initialAidsByRoom[roomIndex];
         SpawnAidsByRoom(roomIndex, currentAidsByRoom[roomIndex]);
         roomCleared[roomIndex] = false;
     }

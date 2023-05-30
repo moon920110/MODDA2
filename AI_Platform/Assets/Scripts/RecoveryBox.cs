@@ -9,11 +9,15 @@ public class RecoveryBox : MonoBehaviour
     public PlayerManager playerManager;
     public GameManager gameManager; 
 
-    public float recoveryAmount = 30f;    
+    //public float recoveryAmount = 30f;    
     public GameObject recovery;
     public bool recoveryTaken;
     public GameObject player;
     #endregion
+    public void Awake()
+    {        
+        gameManager = GameManager.instance;
+    }
     void Start()
     {
         gameManager = GameObject.Find("GameManager").GetComponent<GameManager>();
@@ -33,7 +37,7 @@ public class RecoveryBox : MonoBehaviour
             recovery = other.gameObject;
             recoveryTaken = true;
             player = GameObject.FindGameObjectWithTag("Player");
-            player.GetComponent<PlayerManager>().Recovered(recoveryAmount);
+            player.GetComponent<PlayerManager>().Recovered();
         }
     }
 }

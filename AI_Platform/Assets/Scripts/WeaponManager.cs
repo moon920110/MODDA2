@@ -11,7 +11,7 @@ public class WeaponManager : MonoBehaviour
     public int range = 100;
     public int damage = 25;
     //public Animator playerAnimator;
-    //public ParticleSystem muzzleFlash;
+    public ParticleSystem muzzleFlash;
     //public GameObject hitParticles;
     //public AudioClip gunshot;
     public WeaponSway weaponSway;
@@ -20,7 +20,7 @@ public class WeaponManager : MonoBehaviour
     
     public GameObject p_bulletSpawner;
     public GameObject crosshair;
-    //public GameObject nonTargetHitParticles;
+    public GameObject nonTargetHitParticles;
     public float firerate = 10;
     float firerateTimer = 0;
     public float numberofDestroyed;
@@ -29,7 +29,7 @@ public class WeaponManager : MonoBehaviour
     //public string weaponType;
     public PlayerManager playerManager;
     public GameManager gameManager;
-    //public AudioSource MachineGun;
+    public AudioSource MachineGun;
     //public bool isAiming = false;
     //public Transform t_state_Aiming;
     //public Transform t_state_notAiming;
@@ -39,7 +39,7 @@ public class WeaponManager : MonoBehaviour
     {
         //audioSource = GetComponent<AudioSource>();
         swaySensitivity = weaponSway.swaySensitivity;
-        //MachineGun = GetComponent<AudioSource>();
+        MachineGun = GetComponent<AudioSource>();
         gameManager = GameObject.Find("GameManager").GetComponent<GameManager>();
         numberofDestroyed = 0;
     }
@@ -99,8 +99,8 @@ public class WeaponManager : MonoBehaviour
 
     void Shoot()
     {
-        //muzzleFlash.Play();
-        
+        //muzzleFlash.Play();        
+        MachineGun.Play();
         GameObject.Instantiate(playerBullet.transform, p_bulletSpawner.transform.position, p_bulletSpawner.transform.rotation);
         RaycastHit hit;
         if (Physics.Raycast(playerCam.transform.position, playerCam.transform.forward, out hit, range))
@@ -118,7 +118,7 @@ public class WeaponManager : MonoBehaviour
 
                 }
                 
-                Debug.Log("enemy hit");
+                //Debug.Log("enemy hit");
             }
             else
             {

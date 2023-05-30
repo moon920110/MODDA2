@@ -6,16 +6,24 @@ using UnityEngine.AI;
 public class enemySpawner : MonoBehaviour
 {
 
-    public int[] initialEnemiesByRoom = { 2, 3, 3, 2, 2, 2, 1, 4, 5 };
+    //public int[] initialEnemiesByRoom = { 2, 3, 3, 2, 2, 2, 1, 4, 5 };
     private int[] currentEnemiesByRoom;
     private GameObject[] tilesByRoom;
     private GameObject[] enemies;
     private GameObject enemyPrefab;
     private bool[] roomCleared;
-    private float spawnDelay = 5f;
+    //private float spawnDelay = 5f;
+    private GameManager gameManager;
 
-    private void Start()
+    private void Awake()
     {
+        gameManager = GameManager.instance;
+        //gameManager = GameObject.Find("GameManager").GetComponent<GameManager>();
+    }
+    private void Start()
+    {    
+        int[] initialEnemiesByRoom = gameManager.initialEnemiesByRoom;
+        float spawnDelay = gameManager.spawnDelay;
         enemyPrefab = (GameObject)Resources.Load("Enemy");
         currentEnemiesByRoom = initialEnemiesByRoom;
         tilesByRoom = new GameObject[9];
@@ -32,13 +40,13 @@ public class enemySpawner : MonoBehaviour
 
     private void SpawnInitialEnemies()
     {
-        currentEnemiesByRoom = new int[initialEnemiesByRoom.Length];
+        currentEnemiesByRoom = new int[gameManager.initialEnemiesByRoom.Length];
 
-        for (int i = 0; i < initialEnemiesByRoom.Length; i++)
+        for (int i = 0; i < gameManager.initialEnemiesByRoom.Length; i++)
         {
             GameObject[] tiles = GameObject.FindGameObjectsWithTag("Room" + (i + 1));
 
-            int numEnemies = initialEnemiesByRoom[i];
+            int numEnemies = gameManager.initialEnemiesByRoom[i];
 
             for (int j = 0; j < numEnemies; j++)
             {
@@ -89,8 +97,8 @@ public class enemySpawner : MonoBehaviour
 
     private IEnumerator SpawnEnemiesAfterDelay(int roomIndex)
     {
-        yield return new WaitForSeconds(spawnDelay);
-        currentEnemiesByRoom[roomIndex] = initialEnemiesByRoom[roomIndex];
+        yield return new WaitForSeconds(gameManager.spawnDelay);
+        currentEnemiesByRoom[roomIndex] = gameManager.initialEnemiesByRoom[roomIndex];
         SpawnEnemiesByRoom(roomIndex, currentEnemiesByRoom[roomIndex]);
         roomCleared[roomIndex] = false;
     }

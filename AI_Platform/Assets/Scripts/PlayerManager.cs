@@ -17,11 +17,12 @@ public class PlayerManager : MonoBehaviour
     private Quaternion playerCameraOriginalRotation;
     private float shakeTime;
     private float shakeDuration;    
-    //public AudioSource HealthPickup;
+    public AudioSource HealthPickup;
+
     //Weapons
-    public GameObject weaponHolder;
-    int activeWeaponIndex;
-    GameObject activeWeapon;
+    private GameObject weaponHolder;
+    //int activeWeaponIndex;
+    //GameObject activeWeapon;
       
     //UI
     public Text healthNumber;
@@ -29,32 +30,24 @@ public class PlayerManager : MonoBehaviour
     public Text scoreText;
     public float numberofDeath;
     public Text deathText;
-    
-    public GameObject playerGameObject;
-    public PlayerSpawnPoints playerSpawnPoints;
     public CanvasGroup deathPanel;
 
-    //public Transform Destination;
-    //public Transform playerLocation;
+    public GameObject playerGameObject;
+    public PlayerSpawnPoints playerSpawnPoints;
+    
     #endregion
 
     void Start()
     {
-        playerSpawnPoints = FindObjectOfType<PlayerSpawnPoints>();
-        
-        playerCameraOriginalRotation = playerCamera.transform.localRotation;
-        
-
+        playerSpawnPoints = FindObjectOfType<PlayerSpawnPoints>();        
+        playerCameraOriginalRotation = playerCamera.transform.localRotation;   
         healthNumber.text = p_current_health.ToString();
-        weaponSwitch(0);
-        
+        //weaponSwitch(0);        
         gameManager = GameObject.Find("GameManager").GetComponent<GameManager>();
-        //recoveryBox = GameObject.FindWithTag("Recovery").GetComponent<RecoveryBox>();
-        
+        //recoveryBox = GameObject.FindWithTag("Recovery").GetComponent<RecoveryBox>();        
         playerGameObject = GameObject.FindGameObjectWithTag("Player");
-
-        p_current_health = 10 ; //Set to 10 for testing
-        //HealthPickup = GetComponent<AudioSource>();
+        p_current_health = 100 ; 
+        HealthPickup = GetComponent<AudioSource>();
         numberofDeath = 0;
 
     }
@@ -69,10 +62,10 @@ public class PlayerManager : MonoBehaviour
         {
             playerCamera.transform.localRotation = playerCameraOriginalRotation;
         }*/
-        if (Input.GetAxis("Mouse ScrollWheel") != 0f)
+        /*if (Input.GetAxis("Mouse ScrollWheel") != 0f)
         {
             weaponSwitch(activeWeaponIndex + 1);
-        }        
+        } */       
         scoreText.text = Score.ToString();
 
         if (Input.GetKeyDown(KeyCode.M))//to test out player spawn
@@ -84,15 +77,23 @@ public class PlayerManager : MonoBehaviour
             deathPanel.alpha -= Time.deltaTime;
         }*/
     }
-    public void Recovered(float recoveryAmount)
+    
+    public void Recovered()
     {
-        //HealthPickup.Play();
+        //float recoveryAmount = gameManager.recoveryAmount;
+        HealthPickup.Play();
         Debug.Log("First aid taken");
-        if (p_current_health <= 80)
+        if (p_current_health <= 99)
         {
-            p_current_health = p_current_health + recoveryAmount;
-            //Debug.Log("player healed");
+            p_current_health = p_current_health + gameManager.recoveryAmount;
+            Debug.Log("player healed "+ gameManager.recoveryAmount);
             healthNumber.text = p_current_health.ToString();
+            if (p_current_health + gameManager.recoveryAmount > 100)
+            {
+                p_current_health = 100;
+                Debug.Log("player health set to 100");
+                healthNumber.text = p_current_health.ToString();
+            }
 
         }
         else
@@ -112,9 +113,7 @@ public class PlayerManager : MonoBehaviour
         {
             Debug.Log("player died");
             Score = Score - gameManager.deathPenalty;
-            scoreText.text = Score.ToString();            
-            //p_current_health = 100;            
-            
+            scoreText.text = Score.ToString();             
             PlayerDied();
             
         }
@@ -135,23 +134,20 @@ public class PlayerManager : MonoBehaviour
     }
     public void PlayerDied()
     {
-        shakeTime = 0;
-        shakeDuration = 0.2f;
+        shakeTime = 1;
+        shakeDuration = 1.12f;
         if (shakeTime < shakeDuration)
         {
             shakeTime += Time.deltaTime;
             cameraShake();
-            ///p_current_health = 100;
         }
         else if (playerCamera.transform.localRotation != playerCameraOriginalRotation)
         {
             playerCamera.transform.localRotation = playerCameraOriginalRotation;
         }
         //deathPanel.alpha = 1;
-        //p_current_health = 100;
-        MoveOnDie();
-        //StartCoroutine(PlayerSpawn());
-        //////p_current_health = 100;
+        
+        MoveOnDie();        
         p_current_health = 100;
         healthNumber.text = p_current_health.ToString();
         numberofDeath = numberofDeath+1;
@@ -171,7 +167,7 @@ public class PlayerManager : MonoBehaviour
         transform.position = newPosition;
         characterController.enabled = true;
         playerMovement.enabled = true;        
-        Debug.Log("moved!");
+        //Debug.Log("moved!");
         
     }
 
@@ -207,7 +203,7 @@ public class PlayerManager : MonoBehaviour
         playerCamera.transform.localRotation = Quaternion.Euler(Random.Range(-2f, 2f), 0, 0);
     }
 
-    public void weaponSwitch(int weaponIndex)
+    /*public void weaponSwitch(int weaponIndex)
     {
         int index = 0;
         int amountOfWeapons = weaponHolder.transform.childCount;
@@ -230,7 +226,7 @@ public class PlayerManager : MonoBehaviour
             index++;
         }
         activeWeaponIndex = weaponIndex;
-    } 
+    } */
     }
 
 
