@@ -57,7 +57,7 @@ public class enemyManager : MonoBehaviour
     {
         gameManager = GameObject.Find("GameManager").GetComponent<GameManager>();
         e_current_health = gameManager.enemyCurrentHealth;
-        Debug.Log(e_current_health);
+        //Debug.Log(e_current_health);
         slider.maxValue = e_current_health;
         slider.value = e_current_health;
         shootReady = true;
