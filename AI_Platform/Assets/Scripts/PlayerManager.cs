@@ -34,7 +34,12 @@ public class PlayerManager : MonoBehaviour
 
     public GameObject playerGameObject;
     public PlayerSpawnPoints playerSpawnPoints;
-    
+    private int currentRoom = 0; // Track the current room number
+    public LayerMask Ground; // Layer mask for the ground
+
+    private string roomNamePrefix = "Room"; // Define the room name prefix
+
+
     #endregion
 
     void Start()
@@ -42,9 +47,7 @@ public class PlayerManager : MonoBehaviour
         playerSpawnPoints = FindObjectOfType<PlayerSpawnPoints>();        
         playerCameraOriginalRotation = playerCamera.transform.localRotation;   
         healthNumber.text = p_current_health.ToString();
-        //weaponSwitch(0);        
         gameManager = GameObject.Find("GameManager").GetComponent<GameManager>();
-        //recoveryBox = GameObject.FindWithTag("Recovery").GetComponent<RecoveryBox>();        
         playerGameObject = GameObject.FindGameObjectWithTag("Player");
         p_current_health = 100 ; 
         HealthPickup = GetComponent<AudioSource>();
@@ -53,7 +56,9 @@ public class PlayerManager : MonoBehaviour
     }
     public void Update()
     {
-        /*if (shakeTime < shakeDuration)
+        CheckRoomCollision();
+
+        if (shakeTime < shakeDuration)
         {
             shakeTime += Time.deltaTime;
             cameraShake();
@@ -61,21 +66,15 @@ public class PlayerManager : MonoBehaviour
         else if (playerCamera.transform.localRotation != playerCameraOriginalRotation)
         {
             playerCamera.transform.localRotation = playerCameraOriginalRotation;
-        }*/
-        /*if (Input.GetAxis("Mouse ScrollWheel") != 0f)
-        {
-            weaponSwitch(activeWeaponIndex + 1);
-        } */       
+        }
+        
         scoreText.text = Score.ToString();
 
         if (Input.GetKeyDown(KeyCode.M))//to test out player spawn
         {
             MoveOnDie();
         }
-        /*if (deathPanel.alpha > 0)
-        {
-            deathPanel.alpha -= Time.deltaTime;
-        }*/
+        
     }
     
     public void Recovered()
@@ -117,10 +116,10 @@ public class PlayerManager : MonoBehaviour
             PlayerDied();
             
         }
-        else //int collision with turrent bullet
+        else //Collision with turrent bullet
         {
-            shakeTime = 1;
-            shakeDuration = 2.6f;
+            shakeTime = 0.08f;
+            shakeDuration = 0.08f;
             if (shakeTime < shakeDuration)
             {
                 shakeTime += Time.deltaTime;
@@ -134,8 +133,9 @@ public class PlayerManager : MonoBehaviour
     }
     public void PlayerDied()
     {
-        shakeTime = 1;
-        shakeDuration = 1.12f;
+        //Visual effects:
+        shakeTime = 0.2f;
+        shakeDuration = 0.2f;
         if (shakeTime < shakeDuration)
         {
             shakeTime += Time.deltaTime;
@@ -145,88 +145,68 @@ public class PlayerManager : MonoBehaviour
         {
             playerCamera.transform.localRotation = playerCameraOriginalRotation;
         }
-        //deathPanel.alpha = 1;
-        
-        MoveOnDie();        
+        //Player spawns on a different position after death:
+        MoveOnDie();
         p_current_health = 100;
         healthNumber.text = p_current_health.ToString();
         numberofDeath = numberofDeath+1;
-        deathText.text = numberofDeath.ToString();
-        
+        deathText.text = numberofDeath.ToString();        
     }
-
     private void MoveOnDie()
-    {
-        
+    {        
         characterController.enabled = false;
         playerMovement.enabled = false;
         int selectedIndex = Random.Range(0, playerSpawnPoints.SpawnPoints.Count);
-        //transform.position = playerSpawnPoints.SpawnPoints[selectedIndex].position;
         Vector3 newPosition = playerSpawnPoints.SpawnPoints[selectedIndex].position;
         newPosition.y = 1.3f;
         transform.position = newPosition;
         characterController.enabled = true;
         playerMovement.enabled = true;        
-        //Debug.Log("moved!");
-        
+        //Debug.Log("moved!");        
     }
-
     private void OnTriggerEnter(Collider other)
     {
         if (other.tag == "Terminal")
         {
-
                 Debug.Log("terminal collision");
-                gameManager.EndGame();
-            
+                gameManager.EndGame();            
         }
     }
-    /*public void PlayerSpawner()
-    {        
-        playerGameObject.transform.position = PlayerSpawnPointAtStart.transform.position;
-        shakeTime = 0;
-        shakeDuration = 2f;        
-    }*/
-
-    /*IEnumerator PlayerSpawn()
+    private void CheckRoomCollision()
     {
-        playerGameObject.GetComponent<PlayerMovement>().enabled = false;
-        yield return null;
-        //playerGameObject.transform.position = PlayerSpawnPointAtStart.transform.position;
-        playerGameObject.GetComponent<PlayerMovement>().enabled = true;
-        Debug.Log("moved!");        
-        yield return new WaitForSeconds(1);
-    }*/
+        //Checking which room the player is in:
+        Ray ray = new Ray(transform.position, -Vector3.up);
+        RaycastHit hit;
 
+        if (Physics.Raycast(ray, out hit))
+        {
+            string collidedObjectTag = hit.collider.gameObject.tag;
+
+            if (collidedObjectTag.StartsWith("Room"))
+            {
+                string roomNumber = collidedObjectTag.Substring(4); 
+                //Debug.Log("Collided Object Tag: " + collidedObjectTag);
+                int roomIndex;
+                if (int.TryParse(roomNumber, out roomIndex))
+                {
+                    if (roomIndex != currentRoom)
+                    {
+                        currentRoom = roomIndex;
+                        Debug.Log("Player entered Room " + currentRoom);
+                    }
+                    else
+                    {
+                        //Debug.Log("Player is still in Room " + currentRoom + " but the tile has changed.");
+                    }
+                }
+            }
+        }
+    }
+    //Visual effect for getting hit and dying:
     public void cameraShake()
     {
-        playerCamera.transform.localRotation = Quaternion.Euler(Random.Range(-2f, 2f), 0, 0);
+        playerCamera.transform.localRotation = Quaternion.Euler(Random.Range(-0.5f, 0.5f), 0, 0);
     }
-
-    /*public void weaponSwitch(int weaponIndex)
-    {
-        int index = 0;
-        int amountOfWeapons = weaponHolder.transform.childCount;
-
-        if (weaponIndex > amountOfWeapons - 1)
-        {
-            weaponIndex = 0;
-        }
-        foreach (Transform child in weaponHolder.transform)
-        {
-            if (child.gameObject.activeSelf)
-            {
-                child.gameObject.SetActive(false);
-            }
-            if (index == weaponIndex)
-            {
-                child.gameObject.SetActive(true);
-                activeWeapon = child.gameObject;
-            }
-            index++;
-        }
-        activeWeaponIndex = weaponIndex;
-    } */
-    }
+}
 
 

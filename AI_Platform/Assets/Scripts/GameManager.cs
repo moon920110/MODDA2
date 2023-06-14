@@ -77,21 +77,20 @@ public class GameManager : MonoBehaviour
     void Start()
     {
         //SETTING DIFFICULTY
-        SetDifficultyLevel(2); //default
-        //SetDifficultyLevel(1);
-        Cursor.lockState = CursorLockMode.None;
+        SetDifficultyLevel(2); //default difficulty
+                               //SetDifficultyLevel(1);
 
-        //recoveryBox = GameObject.FindWithTag("Recovery").GetComponent<RecoveryBox>();        
+        Cursor.lockState = CursorLockMode.Locked;
+        Cursor.visible = false;
         spawnPoints = GameObject.FindGameObjectsWithTag("EnemySpawners");
         recoveryPoints = GameObject.FindGameObjectsWithTag("RecoverySpawners");
-        //playerObject = (GameObject)(Resources.Load("Player"));
         enemyPrefab = (GameObject)(Resources.Load("enemyAI"));
         PlayerSpawnPointAtStart = GameObject.FindGameObjectWithTag("PlayerSpawnerAtStart");
         
-        // Setting a random terminal (Room 7-8-9)
+        // Setting a random terminal (only one of the Room 7-8-9):
         int randomIndex = UnityEngine.Random.Range(0, terminals.Length);
         terminals[randomIndex].SetActive(true);
-        // Terminal tile color change
+        // Terminal tile color change:
         foreach (GameObject tile in tiles)
         {
             if (tile.GetComponent<Collider>().bounds.Intersects(terminals[randomIndex].GetComponent<Collider>().bounds))
@@ -103,49 +102,35 @@ public class GameManager : MonoBehaviour
 
     void Update()
     {
-        //GameObject[] enemys = GameObject.FindGameObjectsWithTag("enemy");
-
         if (Input.GetKeyDown(KeyCode.L))
         {
             GameObject playerObject = GameObject.Find("Player");
             PlayerManager playerManager = playerObject.GetComponent<PlayerManager>();
             Debug.Log("Player health: " + playerManager.p_current_health);
             Debug.Log("Number of deaths: " + playerManager.numberofDeath);
-
         }
         if (Input.GetKeyDown(KeyCode.P))
         {
-            //Access to enemyManager script
+            //Access to enemyManager script:
             GameObject enemyAI = GameObject.FindGameObjectWithTag("enemy");
             enemyManager enemyManager = enemyAI.GetComponent<enemyManager>();
 
-            //Access to enemySpawner script
+            //Access to enemySpawner script:
             GameObject EnemySpawner = GameObject.Find("EnemySpawner");
             enemySpawner enemySpawner = EnemySpawner.GetComponent<enemySpawner>();
-            //Access to RecoveryBox script
+            //Access to RecoveryBox script:
             GameObject RecoveryBox = GameObject.Find("RecoveryBoxObject");
             RecoveryBox recoveryBox = RecoveryBox.GetComponent<RecoveryBox>();
-            //Access to RecoverySpawner script
+            //Access to RecoverySpawner script:
             GameObject RecoverySpawner = GameObject.Find("RecoverySpawnPoints");
             RecoverySpawner recoverySpawner = RecoverySpawner.GetComponent<RecoverySpawner>();
         }
-        //Access to WeaponManager script
-        GameObject WeaponHolder = GameObject.FindGameObjectWithTag("Weapon"); //pistol shotgun rifle
+        //Access to WeaponManager script:
+        GameObject WeaponHolder = GameObject.FindGameObjectWithTag("Weapon"); 
         WeaponManager weaponManager = WeaponHolder.GetComponent<WeaponManager>();
-        //destroyedText.text = weaponManager.numberofDestroyed.ToString();
-
     }
 
-    public void EndGame()
-    {
-        Debug.Log("the end");
-        Time.timeScale = 0;
-        Cursor.lockState = CursorLockMode.None;
-        endScreen.SetActive(true);
-        endScore = playerManager.Score;
-        endScoreText.text = endScore.ToString();
-        Application.Quit();
-    }
+    
 
     public void SetDifficultyLevel(int difficulty)
     {
@@ -190,48 +175,19 @@ public class GameManager : MonoBehaviour
                 enemyCurrentHealth = 140f;
                 break;
         }
-        recoveryAmount = currentRecoveryAmount;
-        //Debug.Log("spawn delay is" + spawnDelay);
-        
+        recoveryAmount = currentRecoveryAmount;        
     }
-
-
-    /*void AdjustGameDifficulty()
+    public void EndGame()
     {
-        int difficulty = GameSettings.Difficulty;
-
-        switch (difficulty)
-        {
-            case 0:
-                
-                break;
-            case 1:
-                
-                break;
-            case 2:
-                
-                break;
-            case 3:
-                
-                break;
-            case 4:
-                
-                break;
-            default:
-                Debug.Log("Unknown difficulty level");
-                break;
-        }
+        Debug.Log("The End");
+        Time.timeScale = 0;
+        Cursor.lockState = CursorLockMode.None;
+        endScreen.SetActive(true);
+        endScore = playerManager.Score;
+        endScoreText.text = endScore.ToString();
+        Cursor.visible = true;
+        Application.Quit();
     }
-
-    void IncreaseDifficulty()
-    {
-        GameSettings.Difficulty++;
-        if (GameSettings.Difficulty > 4)
-        {
-            GameSettings.Difficulty = 4;
-        }
-    }*/
-    
     public void Restart()
     {
         Time.timeScale = 1;
